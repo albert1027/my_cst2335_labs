@@ -35,6 +35,38 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 0.0;
   var myFontSize = 30.0;
+  var passValue;
+  var fileToShow = "images/question-mark.png";
+  late TextEditingController _controllerlogin;
+  late TextEditingController _controllerpass;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerlogin = TextEditingController();
+    _controllerpass = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controllerlogin.dispose();
+    _controllerpass.dispose();
+    super.dispose();
+  }
+
+  void buttonClicked(){
+    setState(() {
+      passValue = _controllerpass.value.text;
+    }
+    );
+    setState(() {
+      if (passValue == "QWERTY123") {
+        fileToShow = "images/idea.png";
+      }
+      else fileToShow = "images/stop.png";
+    });;
+
+  }
   void _incrementCounter() {
     setState(() {
       if (myFontSize <99.0)
@@ -63,13 +95,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('You have pushed the button this many times:', style: TextStyle(fontSize: myFontSize),),
-            Text(
-              '$myFontSize',
-              style: TextStyle(fontSize: myFontSize),
-            ),
-            Slider(value: myFontSize, onChanged: setNewValue,max: 100, min: 0,)
-          ],
+
+
+            TextField(controller: _controllerlogin,
+                decoration: InputDecoration(
+                    hintText:"Login",
+                    border: OutlineInputBorder(),
+
+                )),
+            TextField(controller: _controllerpass,
+                obscureText: true,
+                decoration: InputDecoration(
+                    hintText:"Password",
+                    border: OutlineInputBorder(),
+
+                )),
+            ElevatedButton( onPressed: buttonClicked,style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.blue,
+            ), child:  Text("Login",)  ),
+           Semantics( label: "question mark or bulb mark or stop mark ,", child: Image.asset(fileToShow, width: 200, height:200)) ],
+
         ),
       ),
       floatingActionButton: FloatingActionButton(
