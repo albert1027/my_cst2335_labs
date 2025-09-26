@@ -66,10 +66,10 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Text('BROWSE CATEGORIES', style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),),
-            Text(
+            Padding( padding: EdgeInsets.all(16),child: Text(
               "Not Sure about exactly which recipe you're looking for? Do a search, or dive into our most popular categories",
               style: TextStyle(fontSize: 15),
-            ),
+            ),),
             Text('BY MEAT', style: TextStyle(fontSize: 30,  fontWeight: FontWeight.bold),),
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
