@@ -51,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var prefs = EncryptedSharedPreferences();//await SharedPreferences.getInstance();
 
 
+
       //Encrypted, this is async:
       var str = await prefs.getString("MyUserString"); //Use the same variable as in setString()
       var str2 = await prefs.getString("MyPasswordString");
