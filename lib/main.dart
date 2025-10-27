@@ -35,6 +35,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 0.0;
   var myFontSize = 30.0;
+  List<String> list1 = [];
+  bool hasAdd = false;
+  var list2 = <String>[];
+  late TextEditingController _controllerType;
+  late TextEditingController _controllerNum;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerType = TextEditingController();
+    _controllerNum = TextEditingController();//doing your promise to initialize
+
+  }
+
   void _incrementCounter() {
     setState(() {
       if (myFontSize <99.0)
@@ -58,26 +72,88 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text(widget.title),
       ),
-      body: Center(
+      body: ListPage(),
 
-        child: Column(
 
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('You have pushed the button this many times:', style: TextStyle(fontSize: myFontSize),),
-            Text(
-              '$myFontSize',
-              style: TextStyle(fontSize: myFontSize),
-            ),
-            Slider(value: myFontSize, onChanged: setNewValue,max: 100, min: 0,)
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+  Widget ListPage()
+  {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row( mainAxisAlignment: MainAxisAlignment.spaceAround, children:[
+            Flexible( flex:4, child:TextField(controller: _controllerType,
+              decoration: InputDecoration(
+                hintText: "Type the item here",
+                border: OutlineInputBorder(),
+              ) ,
+            )
+            ),
+            Flexible( flex:4, child:TextField(controller: _controllerNum,
+            decoration: InputDecoration(
+              hintText: "Type the quantity here",
+              border: OutlineInputBorder(),
+            ),)),
+            Flexible(
+                flex:2,
+                child: ElevatedButton( child:Text("Click here"), onPressed:() {
+                  setState(() {
+                    list1.add(_controllerType.value.text);
+                    _controllerType.text = "";
+                    list2.add(_controllerNum.value.text);
+                    _controllerNum.text = "";
+                    hasAdd = true;
+                  });
+                } )
+
+            ),
+
+
+          ])
+         ,
+
+          Expanded(child:
+            list1.isEmpty
+            ?(hasAdd
+            ?Center(child: Text("There are no items in the list"))
+                : Container())
+
+          :ListView.builder(
+              itemCount: list1.length,
+              itemBuilder:(context, rowNum) =>
+                  GestureDetector(child:Container(
+                    alignment: Alignment.center,
+                    child: Text("${rowNum+1} ${list1[rowNum]} quantity: ${list2[rowNum]}") ,
+                    ),
+                      onLongPress: () {
+
+
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                title: const Text('Delete this?'),
+                                content: const Text('are you sure?'),
+                                actions: <Widget>[
+                                  FilledButton(child:Text("Yes"), onPressed:() {
+                                    setState(() {
+                                      list1.removeAt(rowNum);
+                                    });
+
+                                    Navigator.pop(context);
+                                  }),
+                                  FilledButton(child:Text("No"), onPressed:() {
+                                    Navigator.pop(context);
+
+                                  }),
+                                ],
+                              )
+                          );
+
+                      })
+          )
+          )
+        ]);
   }
 }
