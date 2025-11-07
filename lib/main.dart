@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'Item.dart';
+import 'ItemDAO.dart';
+import 'ItemDatabase.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,18 +38,33 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 0.0;
   var myFontSize = 30.0;
-  List<String> list1 = [];
+  List<Item> list1 = [];
   bool hasAdd = false;
   var list2 = <String>[];
   late TextEditingController _controllerType;
   late TextEditingController _controllerNum;
+  late ItemDAO itemDAO;
 
   @override
   void initState() {
     super.initState();
     _controllerType = TextEditingController();
     _controllerNum = TextEditingController();//doing your promise to initialize
+    //want to load any existing data into the arraylist
+    //to open the database:
 
+    $FloorItemDatabase.databaseBuilder('ItemFile.db').build()
+        .then( (database){
+      itemDAO = database.myDAO;
+
+      //query all data:
+      itemDAO.getAllItems().then( (listOfItems ) {
+        setState(() { //redraw the GUI
+          list1.addAll(listOfItems);
+          //put the items in the list:
+        });
+      });
+    }  );
   }
 
 
@@ -99,13 +117,18 @@ class _MyHomePageState extends State<MyHomePage> {
             ),)),
             Flexible(
                 flex:2,
-                child: ElevatedButton( child:Text("Click here"), onPressed:() {
+                child: ElevatedButton( child:Text("Click here"), onPressed:() async{
+                  Item newItem = Item(Item.ID++, _controllerType.value.text, int.parse(_controllerNum.value.text));
+
+                  await itemDAO.insertItem(newItem);//insert to database
                   setState(() {
-                    list1.add(_controllerType.value.text);
+
+                    list1.add(newItem);
                     _controllerType.text = "";
-                    list2.add(_controllerNum.value.text);
+
                     _controllerNum.text = "";
                     hasAdd = true;
+
                   });
                 } )
 
@@ -126,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder:(context, rowNum) =>
                   GestureDetector(child:Container(
                     alignment: Alignment.center,
-                    child: Text("${rowNum+1} ${list1[rowNum]} quantity: ${list2[rowNum]}") ,
+                    child: Text("${rowNum+1} ${list1[rowNum].name} quantity: ${list1[rowNum].quantity}") ,
                     ),
                       onLongPress: () {
 
@@ -137,9 +160,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 title: const Text('Delete this?'),
                                 content: const Text('are you sure?'),
                                 actions: <Widget>[
-                                  FilledButton(child:Text("Yes"), onPressed:() {
+                                  FilledButton(child:Text("Yes"), onPressed:() async{
+                                    Item targetItem = list1[rowNum];
+                                    await itemDAO.deleteItem(targetItem);//delete to database
                                     setState(() {
                                       list1.removeAt(rowNum);
+
+
                                     });
 
                                     Navigator.pop(context);
