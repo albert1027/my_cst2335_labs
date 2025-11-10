@@ -44,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerType;
   late TextEditingController _controllerNum;
   late ItemDAO itemDAO;
+  Item? selectedItem = null;//nothing is selected
 
   @override
   void initState() {
@@ -91,11 +92,60 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text(widget.title),
       ),
-      body: ListPage(),
+      body: reactiveLayout(),
 
 
     );
   }
+
+  Widget reactiveLayout(){
+
+    var size = MediaQuery.of(context).size; ///how big is the screen?
+    var height = size.height;
+    var width = size.width;
+    if( (width>height) && (width > 720)) {
+      //tablet
+      return Row( children:[
+        Expanded(child: ListPage(),    flex:2), //Left side 40%
+        Expanded(child: DetailsPage(), flex:2) //Right side, 60%
+      ]);
+    }
+    else{ //Portrait mode / Phone
+      if( selectedItem== null)
+        return ListPage(); //show the list
+      else
+        return DetailsPage(); //show the details
+    }
+  }
+  Widget DetailsPage() {
+    if(selectedItem != null){
+      return Center(child:Column( children: [
+        Text("Id: ${selectedItem!.id}", style: TextStyle(fontSize: 40.0),),
+        Text("Name: ${selectedItem!.name}", style: TextStyle(fontSize: 40.0),),
+        Text("Quantity: ${selectedItem!.quantity}", style: TextStyle(fontSize: 40.0)),
+        Spacer(),//balloon that expands to fill the space
+        OutlinedButton(onPressed: () async{
+          final targetItem = selectedItem!;
+          await itemDAO.deleteItem(targetItem);//delete to database
+          setState(() { selectedItem = null;
+            list1.remove(targetItem) ;}, );
+        }, child: Text("Delete")),
+
+
+        OutlinedButton(onPressed: (){
+          setState(() { selectedItem = null; });
+        }, child: Text("Close"))
+
+      ], mainAxisAlignment: MainAxisAlignment.center,)
+      ); //show what's been selected
+    }
+    else{
+      return Text("Please select an item from the list",style: TextStyle(fontSize: 30.0));
+    }
+  }
+
+
+
   Widget ListPage()
   {
     return Column(
@@ -151,6 +201,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     alignment: Alignment.center,
                     child: Text("${rowNum+1} ${list1[rowNum].name} quantity: ${list1[rowNum].quantity}") ,
                     ),
+
+                      onTap: () {
+                        setState(() {  selectedItem = list1[rowNum]; });
+                      },
+
                       onLongPress: () {
 
 
